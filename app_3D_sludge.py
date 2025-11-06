@@ -1,15 +1,10 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-fig = plt.figure()
-from matplotlib.colors import LinearSegmentedColormap
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.interpolate import griddata
-import io     
 import plotly.graph_objects as go
+import plotly.io as pio
 
-# 可選的字型處理（Plotly/Streamlit組合下通常直接支援中文）
+# 可選的字型處理（Plotly/Streamlit組合下通常直接支援中文，不用另設字型）
 st.set_page_config(page_title="油槽內油泥分布圖", layout="wide")
 
 # --- 在 streamlit 主頁加入 ---
@@ -19,7 +14,7 @@ st.markdown("""
 操作方式：
 - 載入你的XY與油泥高度EXCEL檔
 - 設定左側參數與數據
-- 點擊下方「執行-->3D油泥分佈」可動態出圖，右側可下載 PNG 圖檔與原始數據
+- 點擊下方「執行→3D油泥分布圖」可動態出圖，右側可下載 PNG 圖檔與原始數據
 """)
 
 # Sidebar: 參數設定
@@ -67,68 +62,66 @@ if data is not None:
             np.linspace(-radius, radius, grid_points),
             np.linspace(-radius, radius, grid_points)
         )
-        grid_z = griddata((x, y), z, (grid_x, grid_y), method='cubic')
-        grid_z[grid_x**2 + grid_y**2 > radius**2] = np.nan
+        grid_z = None
+        try:
+            grid_z = griddata((x, y), z, (grid_x, grid_y), method='cubic')
+        except Exception as e:
+            st.error(f"插值失敗：{str(e)}")
+        
+        if grid_z is not None:
+            grid_z[grid_x**2 + grid_y**2 > radius**2] = np.nan
 
-        # 3D 圖：用 Plotly 繪製 & 互動
-        trace = go.Surface(
-            x=grid_x, y=grid_y, z=grid_z,
-            colorscale=[[0, "darkblue"], [0.2, "deepskyblue"], [0.8, "yellow"], [1, "red"]],
-            colorbar=dict(title="油泥高度(公尺)")
-        )
-        layout = go.Layout(
-            title=dict(text=tank_name, x=0.5, xanchor='center', font=dict(size=20)),
-            scene=dict(
-                xaxis_title="X (公尺)",
-                yaxis_title="Y (公尺)",
-                zaxis_title="高度 Z (公尺)",
-                xaxis=dict(range=[radius, -radius]),
-                yaxis=dict(range=[radius, -radius]),
-                zaxis=dict(range=[z_bot, z_top]),
-            ),
-            width=950, height=700
-        )
-        fig = go.Figure(data=[trace], layout=layout)
+            # 3D 圖：用 Plotly 繪製 & 互動
+            trace = go.Surface(
+                x=grid_x, y=grid_y, z=grid_z,
+                colorscale=[[0, "darkblue"], [0.2, "deepskyblue"], [0.8, "yellow"], [1, "red"]],
+                colorbar=dict(title="油泥高度(公尺)")
+            )
+            layout = go.Layout(
+                title=dict(text=tank_name, x=0.5, xanchor='center', font=dict(size=20)),
+                scene=dict(
+                    xaxis_title="X (公尺)",
+                    yaxis_title="Y (公尺)",
+                    zaxis_title="高度 Z (公尺)",
+                    xaxis=dict(range=[radius, -radius]),
+                    yaxis=dict(range=[radius, -radius]),
+                    zaxis=dict(range=[z_bot, z_top]),
+                    camera=dict(
+                        eye=dict(x=1.4, y=-1.4, z=0.7)  # 部分視角設計可根據 elev/azim 自行調整
+                    ),
+                ),
+                width=950, height=700
+            )
+            fig = go.Figure(data=[trace], layout=layout)
 
-        # 標籤顯示
-        if show_labels:
-            for idx in range(len(x)):
-                if x[idx]**2 + y[idx]**2 <= radius**2:
-                    fig.add_trace(go.Scatter3d(
-                        x=[x[idx]], y=[y[idx]], z=[z[idx]+0.2], 
-                        mode='text', 
-                        text=[f"A{idx+1}"],
-                        textposition="top center",
-                        textfont=dict(size=12, color="black", family="Arial"),
-                        showlegend=False
-                    ))
+            # 標籤顯示
+            if show_labels:
+                for idx in range(len(x)):
+                    if x[idx]**2 + y[idx]**2 <= radius**2:
+                        fig.add_trace(go.Scatter3d(
+                            x=[x[idx]], y=[y[idx]], z=[z[idx]+0.2], 
+                            mode='text', 
+                            text=[f"A{idx+1}"],
+                            textposition="top center",
+                            textfont=dict(size=12, color="black", family="Arial"),
+                            showlegend=False
+                        ))
 
-        # 展示互動 3D 圖
-        st.plotly_chart(fig, use_container_width=True)
+            # 展示互動 3D 圖
+            st.plotly_chart(fig, use_container_width=True)
 
-        # 存檔功能：圖片、PDF、EXCEL
-        st.subheader("資料&圖表下載")
-        st.download_button("下載 Excel(原始數據)", data.to_csv(index=False).encode("utf-8-sig"), "data.csv")
-        # 圖片下載（Plotly支援）：可用fig.write_image存成PNG
-        img_buf = io.BytesIO()
-        fig.savefig(img_buf, format="png", dpi=300)
-        img_buf.seek(0)
-        st.download_button("下載圖片 (PNG)", img_buf, "oil_sludge_Label.png", mime="image/png")
+            # 存檔功能：圖片、EXCEL
+            st.subheader("資料&圖表下載")
+            st.download_button("下載 Excel(原始數據)", data.to_csv(index=False).encode("utf-8-sig"), "data.csv")
 
-        # PDF下載（建議：轉成圖片或使用reportlab/matplotlib組合，進階可開發Statistics摘要+Data）
-        # 可延伸設計...
-
+            # 圖片下載（Plotly支援）：用 to_image 存成PNG
+            try:
+                img_bytes = fig.to_image(format="png")
+                st.download_button("下載圖片 (PNG)", img_bytes, "oil_sludge_Label.png", mime="image/png")
+            except Exception as e:
+                st.error("靜態圖片匯出失敗。可能未安裝 Kaleido，請在 requirements.txt 加入 kaleido。")
 else:
     st.info("請先上傳 EXCEL 或手動輸入數據")
 
 # 作者資訊
 st.caption("Designed by Minda")
-
-
-
-
-
-
-
-
-
