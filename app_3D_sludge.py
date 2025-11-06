@@ -123,16 +123,17 @@ if data is not None:
             st.download_button("下載 Excel(原始數據)", data.to_csv(index=False).encode("utf-8-sig"), "data.csv")
 
             # 圖片下載（Plotly支援）：用 to_image 存成PNG
-            try:
-                img_bytes = fig.to_image(format="png")
-                st.download_button("下載圖片 (PNG)", img_bytes, "oil_sludge_Label.png", mime="image/png")
-            except Exception as e:
-                st.error("靜態圖片匯出失敗。可能未安裝 Kaleido，請在 requirements.txt 加入 kaleido。")
+            #try:
+            #    img_bytes = fig.to_image(format="png")
+            #    st.download_button("下載圖片 (PNG)", img_bytes, "oil_sludge_Label.png", mime="image/png")
+            #except Exception as e:
+            #    st.error("靜態圖片匯出失敗。可能未安裝 Kaleido，請在 requirements.txt 加入 kaleido。")
 else:
     st.info("請先上傳 EXCEL 或手動輸入數據")
 
 # 作者資訊
 st.caption("Designed by Minda")
+
 
 
 
