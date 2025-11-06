@@ -82,7 +82,7 @@ if data is not None:
             colorbar=dict(
             title="油泥高度(公尺)",
             thickness=15,    # 柱狀色條寬度（預設約30，可設15~30）
-            len=0.2          # 柱狀色條長度比例（0~1）
+            len=0.1          # 柱狀色條長度比例（0~1）
             )
             #MINDA
             layout = go.Layout(
@@ -133,6 +133,7 @@ else:
 
 # 作者資訊
 st.caption("Designed by Minda")
+
 
 
 
