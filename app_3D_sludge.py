@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import griddata
-import io        
+import io      
+import plotly.graph_objects as go
 
 # 可選的字型處理（Plotly/Streamlit組合下通常直接支援中文）
 st.set_page_config(page_title="油槽內油泥分布圖", layout="wide")
@@ -111,5 +112,6 @@ else:
 
 # 作者資訊
 st.caption("Designed by Minda")
+
 
 
