@@ -1,3 +1,4 @@
+from scipy.interpolate import griddata
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -125,3 +126,4 @@ else:
 
 # 作者資訊
 st.caption("Designed by Minda")
+
