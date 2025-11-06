@@ -26,6 +26,8 @@ upload_opt = st.radio("選擇資料輸入方式：", ["上傳 EXCEL 檔", "手�
 uploaded_file = None
 data = None
 
+upload_opt = st.radio("數據輸入方式：", ["上傳 EXCEL 檔", "手動輸入數據"])
+data = None
 if upload_opt == "上傳 EXCEL 檔":
     uploaded_file = st.file_uploader("請上傳 oil_sludge_measurements.xlsx", type=["xlsx"])
     if uploaded_file:
@@ -106,3 +108,4 @@ else:
 
 # 作者資訊
 st.caption("Designed by Minda")
+
