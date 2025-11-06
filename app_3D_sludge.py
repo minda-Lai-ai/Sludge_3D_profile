@@ -110,7 +110,7 @@ if data is not None:
         st.download_button("下載 Excel(原始數據)", data.to_csv(index=False).encode("utf-8-sig"), "data.csv")
         # 圖片下載（Plotly支援）：可用fig.write_image存成PNG
         img_buf = io.BytesIO()
-        img_bytes = fig.to_image(format='png')
+        fig.savefig(img_buf, format="png", dpi=300)
         img_buf.seek(0)
         st.download_button("下載圖片 (PNG)", img_buf, "oil_sludge_Label.png", mime="image/png")
 
