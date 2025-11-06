@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+fig = plt.figure()
 from matplotlib.colors import LinearSegmentedColormap
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import griddata
@@ -122,6 +123,7 @@ else:
 
 # 作者資訊
 st.caption("Designed by Minda")
+
 
 
 
