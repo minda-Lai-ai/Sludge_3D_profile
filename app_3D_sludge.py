@@ -11,6 +11,17 @@ import plotly.graph_objects as go
 # 可選的字型處理（Plotly/Streamlit組合下通常直接支援中文）
 st.set_page_config(page_title="油槽內油泥分布圖", layout="wide")
 
+# --- 在 streamlit 主頁加入 ---
+st.markdown("""
+### 說明
+本程式可視化油槽內部油泥量之3D分布結果。
+支援 Excel 上傳與手動輸入座標，並可自訂油槽參數、柱狀圖顏色與透明度。  
+操作方式：
+- 載入你的XY與油泥高度EXCEL檔
+- 設定左側參數與數據
+- 點擊「執行」可動態出圖，右側可下載 PNG 圖檔與原始數據
+""")
+
 # Sidebar: 參數設定
 st.sidebar.header("油槽參數設定")
 tank_name = st.sidebar.text_input("油槽名稱", value="S602 油槽油泥分布圖")
@@ -112,6 +123,7 @@ else:
 
 # 作者資訊
 st.caption("Designed by Minda")
+
 
 
 
