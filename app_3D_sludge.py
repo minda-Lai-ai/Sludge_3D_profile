@@ -95,9 +95,11 @@ if data is not None:
         st.subheader("資料&圖表下載")
         st.download_button("下載 Excel(原始數據)", data.to_csv(index=False).encode("utf-8-sig"), "data.csv")
         # 圖片下載（Plotly支援）：可用fig.write_image存成PNG
-        import io
-        img_bytes = fig.to_image(format="png")
-        st.download_button("下載圖片(PNG)", img_bytes, "fig.png")
+        img_buf = io.BytesIO()
+        fig.savefig(img_buf, format="png", dpi=300)
+        img_buf.seek(0)
+        st.download_button("下載圖片 (PNG)", img_buf, "oil_sludge_Label.png", mime="image/png")
+
         # PDF下載（建議：轉成圖片或使用reportlab/matplotlib組合，進階可開發Statistics摘要+Data）
         # 可延伸設計...
 
@@ -106,3 +108,4 @@ else:
 
 # 作者資訊
 st.caption("Designed by Minda")
+
